@@ -66,18 +66,18 @@ object GeoTest {
     //Initialize
     println("\n\n>>> INITIALIZING <<<\n\n")
 
-    implicit val sparkSession = SparkSession.builder.
+    val sparkSession = SparkSession.builder.
       master("local")
       .appName("Thesis")
       .config("spark.serializer", classOf[KryoSerializer].getName)
       .config("spark.kryo.registrator", classOf[KryoRegistrator].getName)
       .config("spark.kryoserializer.buffer.max.mb", "800") // Prevent overflow
       .config("spark.ui.enabled", "true")
-      .config("spark.executor.memory",   "14g")
+      .config("spark.executor.memory",   "8g")
       .getOrCreate()
 
     // Init spark context
-    implicit val sc = sparkSession.sparkContext
+//    implicit val sc = sparkSession.sparkContext
 
     try {
 //      run_test(args(0), args(1))(sc)
@@ -88,10 +88,11 @@ object GeoTest {
       println("Hit enter to exit.")
       StdIn.readLine()
     } finally {
-      sc.stop()
+      sparkSession.stop()
     }
 
-    def run_test(input_filepath : String, output_filepath : String)(implicit sc: SparkContext) = {
+    def run_test(input_filepath : String, output_filepath : String)(implicit spark_s: SparkSession) = {
+      implicit  val sc = spark_s.sparkContext
       //val filenameRdd = sc.binaryFiles('hdfs://nameservice1:8020/user/*.binary')
 
       // Read Geotiff and time it
